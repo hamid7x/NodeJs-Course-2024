@@ -1,7 +1,6 @@
 const express = require("express");
 const connectToDB = require("./database/db");
 const bookRouter = require('./routes/book.router');
-
 const app = express();
 
 require('dotenv').config();
