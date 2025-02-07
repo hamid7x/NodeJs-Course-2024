@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const userRegister = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
-   
+
     //check if all fields are provided
     if (!username || !email || !password)
       return res.json({
@@ -81,6 +81,40 @@ const userLogin = async (req, res) => {
   }
 };
 
+//change passwrod controller
+const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.userInfo.userId;
+    const user = await User.findById(userId);
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "user not found" });
+
+    //check if the old password is correct
+    const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordMatch)
+      return res
+        .status(400)
+        .json({ success: false, message: "old password not correct!" });
+
+    //hash the new passwrod
+    const salt = await bcrypt.genSalt(10);
+    const hashNewPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashNewPassword;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, message: "password changed successfully." });
+  } catch (error) {
+    console.log("error in changePassword controller:->", error.message);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 //check home page
 const homePage = (req, res) => {
   try {
@@ -101,6 +135,7 @@ const adminPage = (req, res) => {
 module.exports = {
   userRegister,
   userLogin,
+  changePassword,
   homePage,
   adminPage,
 };
