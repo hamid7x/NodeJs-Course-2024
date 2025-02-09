@@ -112,6 +112,18 @@ const getProductsAnalysis = async (req, res) => {
           },
         },
       },
+      {
+        $project: {
+          _id: 0,
+          totalRevenue: 1,
+          avgPrice: 1,
+          maxProductPrice: 1,
+          minProductPrice: 1,
+          priceRange: {
+            $subtract: ["$maxProductPrice","$minProductPrice"]
+          }
+        }
+      }
     ]);
     res.status(201).json({
       success: true,
